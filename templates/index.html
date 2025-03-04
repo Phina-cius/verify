@@ -4,265 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barcode Scanner</title>
-</head>
-    <style>
-             body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-                 overflow: hidden;
-        }
-
-        h2 {
-            color: green;
-            margin-top: 10px;
-            position: relative;
-            text-align: center;
-        }
-
-        h2::before {
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 4px;
-            background: red;
-            position: absolute;
-            content: '';
-        }
-
-        h3 {
-            color: #555;
-            margin-bottom: 10px;
-        }
-
-        img {
-            border: 5px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            max-width: 100%;
-            height: auto;
-        }
-
-        textarea {
-            width: 100%;
-            max-width: 640px;
-            height: 100px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-bottom: 20px;
-            resize: none;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
-            max-width: 200px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .camera-status {
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .camera-status.connected {
-            color: green;
-        }
-
-        .camera-status.not-accessible {
-            color: red;
-        }
-
-        .main {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 40px;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
-        }
-
-        .capture-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .text-and-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .barcode-data {
-            width: 100%;
-            max-width: 640px;
-        }
-
-        @media (max-width: 768px) {
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-        font-family: Arial, sans-serif;
-    }
-
-    /* Make the camera feed fill the whole screen */
-    #camera-feed {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* 100% of the viewport width */
-        height: 100vh; /* 100% of the viewport height */
-        object-fit: cover; /* Ensures the video covers the entire screen */
-        z-index: -1; /* Ensure it stays behind other content */
-    }
-
-    .overlay {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        color: white;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 1000;
-    }
-
-    .text-and-btn {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 60px; /* Initial height */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        z-index: 1000;
-        transition: height 0.3s ease; /* Smooth transition for height */
-        overflow: hidden; /* Hide overflow content */
-    }
-
-    .text-and-btn button {
-        padding: 10px;
-        font-size: 18px;
-        cursor: pointer;
-        border: none;
-        background: #3498db;
-        color: white;
-        border-radius: 5px;
-        margin-right: 10px;
-    }
-     .text-and-btn.expanded {
-        height: 230px; /* Expanded height */
-    }
-
-    .text-and-btn textarea {
-        display: none; /* Initially hidden */
-        padding: 20px;
-        text-align: center;
-    }
-
-    /* Styling for the close (X) button */
-    .close-btn {
-       position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        font-size: 20px;
-        color: white;
-    }
-     .text-and-btn.expanded textarea {
-        display: block; /* Show textarea when expanded */
-    }
-
-    h2 {
-        display: none;
-    }
-}
-    </style>
-<body>
-    <h2 class="title">Live Barcode Detection</h2>
-    <div class="main">
-    <div class="capture-section">
-    {% if cam_status %}
-        <h3 class="overlay">Camera status: Connected</h3>
-        <img src="{% url 'camera_feed' %}" width="640" height="480" id="camera-feed">
-    {% else %}
-        <h3 class="overlay">Camera status: Not Accessible</h3>
-    {% endif %}
-    </div>
-    <div class="text-and-btn" id="textAndBtn">
-    <div class="barcode-data">
-        <h3>Barcode Data:</h3>
-        <span class="close-btn" id="closeBtn">×</span>
-        <textarea id="barcode_result" rows="3"></textarea>
-    </div>
-    <button id="btn_ReadQRCode">Read Barcode</button>
-</div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Live Barcode Detection</h2>
+    {% if cam_status %}
+        <h3>Camera Status: Connected</h3>
+        <img src="{% url 'camera_feed' %}" width="640" height="480">
+    {% else %}
+        <h3>Camera Status: Not Accessible</h3>
+    {% endif %}
+
+    <h3>Barcode Data:</h3>
+    <textarea id="barcode_result" rows="3"></textarea>
+    <button id="btn_ReadQRCode">Read Barcode</button>
+
+    <h3>Product Details:</h3>
+    <div id="product_info" style="display: none;">
+        <p><strong>Title:</strong> <span id="product_title"></span></p>
+        <p><strong>Description:</strong> <span id="product_description"></span></p>
+        <p><strong>Brand:</strong> <span id="product_brand"></span></p>
+        <p><strong>Category:</strong> <span id="product_category"></span></p>
+        <p><strong>Model:</strong> <span id="product_model"></span></p>
+        <p><strong>Color:</strong> <span id="product_color"></span></p>
+        <p><strong>Size:</strong> <span id="product_size"></span></p>
+        <p><strong>Lowest Price:</strong> <span id="product_lowest_price"></span></p>
+        <p><strong>Highest Price:</strong> <span id="product_highest_price"></span></p>
+        <p><strong>Weight:</strong> <span id="product_weight"></span></p>
+        <p><strong>Dimensions:</strong> <span id="product_dimensions"></span></p>
+        <h4>Images:</h4>
+        <div id="product_images"></div>
+    </div>
+
     <script>
         $(document).ready(function () {
-        // Expand .text-and-btn when "Read Barcode" is clicked
-        $("#btn_ReadQRCode").on("click", function (e) {
-            e.preventDefault();
-            $("#textAndBtn").addClass("expanded"); // Add the expanded class
-            $("#barcode_result").show(); // Show the textarea
+            $("#btn_ReadQRCode").on("click", function () {
+                $.ajax({
+                    url: "{% url 'get_latest_barcode' %}",
+                    type: "GET",
+                    success: function (data) {
+                        if (data.barcode_data) {
+                            $("#barcode_result").val(data.barcode_type + ": " + data.barcode_data);
 
-            // Simulate AJAX call to fetch barcode data
-            $.ajax({
-                type: "GET",
-                url: "{% url 'camera_feed' %}",
-                dataType: "json",
-                success: function (data) {
-                    if (data.barcode_data) {
-                        $("#barcode_result").val(data.barcode_data);
-                    } else {
-                        $("#barcode_result").val("No barcode detected.");
+                            if (data.product_info) {
+                                $("#product_info").show();
+                                $("#product_title").text(data.product_info.title || "N/A");
+                                $("#product_description").text(data.product_info.description || "N/A");
+                                $("#product_brand").text(data.product_info.brand || "N/A");
+                                $("#product_category").text(data.product_info.category || "N/A");
+                                $("#product_model").text(data.product_info.model || "N/A");
+                                $("#product_color").text(data.product_info.color || "N/A");
+                                $("#product_size").text(data.product_info.size || "N/A");
+                                $("#product_lowest_price").text(data.product_info.lowest_recorded_price || "N/A");
+                                $("#product_highest_price").text(data.product_info.highest_recorded_price || "N/A");
+                                $("#product_weight").text(data.product_info.weight || "N/A");
+                                $("#product_dimensions").text(data.product_info.dimension || "N/A");
+
+                                // Display images
+                                let images = data.product_info.images || [];
+                                let imgContainer = $("#product_images");
+                                imgContainer.empty();
+                                if (images.length > 0) {
+                                    images.forEach(imgUrl => {
+                                        imgContainer.append(`<img src="${imgUrl}" width="100" height="100" style="margin:5px;">`);
+                                    });
+                                } else {
+                                    imgContainer.append("<p>No images available</p>");
+                                }
+                            } else {
+                                $("#product_info").hide();
+                            }
+                        } else {
+                            $("#barcode_result").val("No barcode detected.");
+                            $("#product_info").hide();
+                        }
+                    },
+                    error: function () {
+                        alert("Error retrieving barcode data.");
                     }
-                },
-                error: function () {
-                    alert("Error retrieving barcode data.");
-                }
+                });
             });
         });
-
-        // Collapse .text-and-btn when "×" is clicked
-        $("#closeBtn").on("click", function (e) {
-            e.preventDefault();
-            $("#textAndBtn").removeClass("expanded"); // Remove the expanded class
-            $("#barcode_result").hide(); // Hide the textarea
-        });
-    });
     </script>
 </body>
 </html>

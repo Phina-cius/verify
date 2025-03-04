@@ -1,0 +1,25 @@
+/* The author name: Phinacius Wafula Simiyu */
+/* The author email: phinaciussimiyu143@gmail.com */
+/* The author phone number: +254798681812 */
+
+@media (max-width: 320px) {
+    /* Styles for extra small devices */
+}
+
+@media (min-width: 321px) and (max-width: 480px) {
+    /* Styles for small devices */
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    /* Styles for medium devices */
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Styles for large devices */
+}
+@media (min-width: 1025px) and (max-width: 1440px) {
+    /* Styles for extra large devices */
+}
+@media (min-width: 1441px) and (max-width: 1920px) {
+    /* Styles for super extra large devices */
+}
