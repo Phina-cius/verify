@@ -2,3 +2,119 @@
 /* The author email: phinaciussimiyu143@gmail.com */
 /* The author phone number: +254798681812 */
 
+/*========= Imports =============*/
+@import url('../css/footer.css'); /* Adjust path if necessary */
+@import url('../css/headerpart.css'); /* Adjust path if necessary */
+@import url('../css/responsiveness.css'); /* Adjust path if necessary */
+/*========= Imports =============*/
+
+
+
+
+/*========= Imports =============*/
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merienda:wght@300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Playwrite+AU+QLD+Guides&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+/*========= Imports =============*/
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-variation-settings:
+    "wdth" 100,
+    "YTLC" 500;
+    box-sizing: border-box;
+    font-family: inherit; /* Inherit font family */
+    font-size: inherit;   /* Inherit font size */
+    line-height: inherit; /* Inherit line height */
+    color: inherit;       /* Inherit text color */
+    text-decoration: none; /* Remove underline from links */
+    list-style: none;     /* Remove bullet points from lists */
+    outline: none;        /* Remove outline for focused elements */
+}
+
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --font-size: 16px;
+  --font-family: "Nunito Sans", sans-serif;
+  --line-height: 1.5;
+  --border-radius: 4px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+  --text-color: #333333;
+  --background-color: #ffffff;
+  --hover-color: #2980b9;
+  --active-color: #27ae60;
+
+}
+
+/*======header part=======*/
+/*========= Header Styling =============*/
+.header {
+    top: 0;
+    left: 0;
+    width: 100%;
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    background-color: var(--background-color);
+    box-shadow: var(--box-shadow);
+    z-index: 1000; /* Ensure header stays above other content */
+}
+
+/* Logo container styling */
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+/* Logo image styling */
+.logo-img {
+    height: 40px; /* Adjust based on your preference */
+    width: auto;
+    margin-right: var(--spacing-small);
+}
+
+/* Logo text styling */
+.logo-text {
+    font-family: var(--font-family);
+    font-size: 24px;
+    font-weight: 600; /* Semi-bold */
+    color: var(--text-color);
+}
+
+/* Navigation styling */
+.nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-medium); /* Space between nav items */
+}
+
+/* Navigation links styling */
+.nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    font-weight: 500; /* Medium */
+    transition: color 0.3s ease;
+}
+
+.nav a:hover {
+    color: var(--primary-color); /* Change color on hover */
+}
+
+/* Active link styling */
+.nav a.active {
+    color: var(--active-color);
+    font-weight: 600; /* Semi-bold */
+}

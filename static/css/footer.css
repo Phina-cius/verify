@@ -2,4 +2,107 @@
 /* The author email: phinaciussimiyu143@gmail.com */
 /* The author phone number: +254798681812 */
 
+/* Footer Styling */
+.footer {
+    background-color: #2c3e50; /* Dark background */
+    color: #ffffff; /* White text */
+    padding: var(--spacing-large) 0;
+    margin-top: var(--spacing-large);
+    font-family: var(--font-family);
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-medium);
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: var(--spacing-medium);
+}
+
+.footer-heading {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-small);
+    color: var(--primary-color); /* Use your primary color */
+}
+
+.footer-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ecf0f1; /* Light gray text */
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: var(--spacing-small);
+}
+
+.footer-link {
+    color: #ecf0f1; /* Light gray text */
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary-color); /* Change color on hover */
+}
+
+.footer-contact {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-contact li {
+    margin-bottom: var(--spacing-small);
+    font-size: 14px;
+    color: #ecf0f1; /* Light gray text */
+    display: flex;
+    align-items: center;
+}
+
+.footer-contact i {
+    margin-right: 10px;
+    color: var(--primary-color); /* Use your primary color */
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: var(--spacing-medium) 0;
+    border-top: 1px solid #34495e; /* Subtle border */
+    margin-top: var(--spacing-medium);
+}
+
+.footer-copyright {
+    font-size: 14px;
+    color: #bdc3c7; /* Light gray text */
+}
+.footer-powered-by {
+    font-size: 14px;
+    color: #bdc3c7; /* Light gray text */
+    margin-top: var(--spacing-small);
+}
+
+.footer-powered-by a {
+    color: var(--primary-color); /* Use your primary color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-powered-by a:hover {
+    color: var(--hover-color); /* Change color on hover */
+}
+
+
 

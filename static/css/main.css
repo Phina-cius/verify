@@ -52,3 +52,234 @@
   --active-color: #27ae60;
 
 }
+
+/*========= General Styles =============*/
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 80px 20px 10px 20px;
+}
+.detection_section{
+    display: flex;
+    column-gap: 30px;
+}
+.barcode_and_button{
+    display: flex;
+    column-gap: 10px;
+}
+
+
+h2, h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-medium);
+}
+
+h2 {
+    font-size: 2em;
+    font-weight: 700;
+}
+
+h3 {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+/*========= Camera Feed Section =============*/
+.camera-status {
+    padding: var(--spacing-small);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-medium);
+    font-weight: 500;
+}
+
+.camera-status.connected {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.camera-status.not-connected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+img {
+    border: 5px solid #ddd;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: var(--spacing-medium);
+}
+
+/*========= Barcode Section =============*/
+textarea {
+    width: 100%;
+    padding: var(--spacing-small);
+    margin-top: var(--spacing-small);
+    border: 2px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    resize: vertical;
+    box-shadow: var(--box-shadow);
+    font-family: Consolas;
+    font-weight: 600;
+
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-small) var(--spacing-medium);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: var(--spacing-small);
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--hover-color);
+}
+
+/*========= Product Info Section =============*/
+#product_info {
+    background-color: white;
+    padding: var(--spacing-medium);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-top: var(--spacing-medium);
+    display: none; /* Hidden by default */
+    height: 40vh; /* Fixed height for scrollable area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: var(--primary-color) #f5f5f5; /* For Firefox */
+}
+
+/* Custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+#product_info::-webkit-scrollbar {
+    width: 10px; /* Width of the scrollbar */
+}
+
+#product_info::-webkit-scrollbar-track {
+    background: #f5f5f5; /* Color of the track */
+    border-radius: 4px; /* Rounded corners for the track */
+}
+
+#product_info::-webkit-scrollbar-thumb {
+    background: var(--primary-color); /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+#product_info::-webkit-scrollbar-thumb:hover {
+    background: var(--hover-color); /* Color of the thumb on hover */
+}
+
+#product_info p {
+    margin: var(--spacing-small) 0;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+#product_info strong {
+    color: var(--primary-color);
+}
+
+#product_images img {
+    margin: var(--spacing-small);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+#product_images p {
+    color: #777;
+    font-style: italic;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse; /* Remove space between cells */
+    margin: var(--spacing-medium) 0;
+    font-family: var(--font-family);
+    background-color: white;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+}
+.product-table th,
+.product-table td {
+    padding: var(--spacing-small);
+    border: 1px solid #ddd; /* Light border for cells */
+}
+.product-table th {
+    background-color: var(--primary-color); /* Use your primary color */
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+.product-table td {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.product-table td:first-child {
+    font-weight: 500; /* Slightly bold for labels */
+    width: 30%; /* Fixed width for the first column */
+}
+.product-table td:last-child {
+    width: 70%; /* Fixed width for the second column */
+}
+
+.product-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternate row color */
+}
+
+.product-table tr:hover {
+    background-color: #f1f1f1; /* Hover effect for rows */
+}
+
+#product_images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-small);
+}
+
+#product_images img {
+    max-width: 100px;
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+
+/*========= Responsive Design =============*/
+@media (max-width: 768px) {
+    body {
+        padding: var(--spacing-small);
+    }
+
+    h2 {
+        font-size: 1.75em;
+    }
+
+    h3 {
+        font-size: 1.25em;
+    }
+
+    img {
+        width: 100%;
+        height: auto;
+    }
+
+    textarea {
+        font-size: 0.9em;
+    }
+
+    button {
+        width: 100%;
+        padding: var(--spacing-small);
+    }
+}

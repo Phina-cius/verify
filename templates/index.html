@@ -1,40 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barcode Scanner</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <h2>Live Barcode Detection</h2>
-    {% if cam_status %}
-        <h3>Camera Status: Connected</h3>
-        <img src="{% url 'camera_feed' %}" width="640" height="480">
-    {% else %}
-        <h3>Camera Status: Not Accessible</h3>
-    {% endif %}
+{% extends 'base.html' %}
 
+{% load static %}
+
+{% block body %}
+
+    {% include 'include/header_part.html' %}
+   <div class="detection_section">
+    <!------camera section-->
+    <div class="camera-section">
+    {% if cam_status %}
+        <h3>Camera Status: <span style="color: green">Connected</span></h3>
+
+        <img src="{% url 'camera_feed' %}" width="640" height="480" class="camera_feed">
+
+    {% else %}
+        <h3>Camera Status: <span style="color: red" >Not Accessible</span></h3>
+    {% endif %}
+    </div>
+    <!------end of camera section--->
+
+    <!-------the data section--->
+    <div class="data-section">
     <h3>Barcode Data:</h3>
+     <div class="barcode_and_button">
     <textarea id="barcode_result" rows="3"></textarea>
     <button id="btn_ReadQRCode">Read Barcode</button>
-
+     </div>
     <h3>Product Details:</h3>
     <div id="product_info" style="display: none;">
-        <p><strong>Title:</strong> <span id="product_title"></span></p>
-        <p><strong>Description:</strong> <span id="product_description"></span></p>
-        <p><strong>Brand:</strong> <span id="product_brand"></span></p>
-        <p><strong>Category:</strong> <span id="product_category"></span></p>
-        <p><strong>Model:</strong> <span id="product_model"></span></p>
-        <p><strong>Color:</strong> <span id="product_color"></span></p>
-        <p><strong>Size:</strong> <span id="product_size"></span></p>
-        <p><strong>Lowest Price:</strong> <span id="product_lowest_price"></span></p>
-        <p><strong>Highest Price:</strong> <span id="product_highest_price"></span></p>
-        <p><strong>Weight:</strong> <span id="product_weight"></span></p>
-        <p><strong>Dimensions:</strong> <span id="product_dimensions"></span></p>
-        <h4>Images:</h4>
-        <div id="product_images"></div>
+<table class="product-table">
+    <thead>
+        <tr>
+            <th colspan="2">Product Information</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Title:</strong></td>
+            <td><span id="product_title"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Description:</strong></td>
+            <td><span id="product_description"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Brand:</strong></td>
+            <td><span id="product_brand"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Category:</strong></td>
+            <td><span id="product_category"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Model:</strong></td>
+            <td><span id="product_model"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Color:</strong></td>
+            <td><span id="product_color"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Size:</strong></td>
+            <td><span id="product_size"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Lowest Price:</strong></td>
+            <td><span id="product_lowest_price"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Highest Price:</strong></td>
+            <td><span id="product_highest_price"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Weight:</strong></td>
+            <td><span id="product_weight"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Dimensions:</strong></td>
+            <td><span id="product_dimensions"></span></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <h4>Images:</h4>
+                <div id="product_images"></div>
+            </td>
+        </tr>
+    </tbody>
+</table>
     </div>
+    </div>
+    <!-------the data section--->
+
+    </div>
+    <!-------the end of the fake detection section-->
+
+    {% include 'include/footer.html' %}
 
     <script>
         $(document).ready(function () {
@@ -86,5 +146,6 @@
             });
         });
     </script>
-</body>
-</html>
+
+{% endblock %}
+

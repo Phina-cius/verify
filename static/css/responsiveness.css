@@ -3,7 +3,28 @@
 /* The author phone number: +254798681812 */
 
 @media (max-width: 320px) {
+
     /* Styles for extra small devices */
+    .header{
+        background-color: transparent;
+        box-shadow: none;
+        position: absolute;
+    }
+    .camera_feed{
+        position: relative;
+        width: 100vw; /* 100% of the viewport width */
+        height: 100vh; /* 100% of the viewport height */
+        display: flex;
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+    }
+
+
+    .footer{
+        display: none;
+    }
+
+
 }
 
 @media (min-width: 321px) and (max-width: 480px) {
@@ -12,6 +33,7 @@
 
 @media (min-width: 481px) and (max-width: 767px) {
     /* Styles for medium devices */
+
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
