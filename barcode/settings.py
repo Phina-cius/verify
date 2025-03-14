@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-v(=q)i#(+j3_x82i@!es1fu79m($cjzw24w6p04tatr!fzg#im
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -119,11 +119,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
 
-STATICFILES_DIRS=[
-    BASE_DIR, 'static'
+# Directories where Django will look for additional static files
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Use Pathlib for better path handling
 ]
+
+# The directory where collectstatic will collect static files for deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Configuration for static files storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
