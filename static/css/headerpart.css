@@ -63,7 +63,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 10px;
+    padding: 10px 20px;
     background-color: var(--background-color);
     box-shadow: var(--box-shadow);
     z-index: 1000; /* Ensure header stays above other content */
@@ -98,6 +98,12 @@
     align-items: center;
     gap: var(--spacing-medium); /* Space between nav items */
 }
+.nav .menu{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 10px;
+}
 
 /* Navigation links styling */
 .nav a {
@@ -109,12 +115,8 @@
     transition: color 0.3s ease;
 }
 
-.nav a:hover {
+.nav a:hover,
+.nav a.active{
     color: var(--primary-color); /* Change color on hover */
 }
 
-/* Active link styling */
-.nav a.active {
-    color: var(--active-color);
-    font-weight: 600; /* Semi-bold */
-}

@@ -1,0 +1,228 @@
+{% extends "account/base_entrance.html" %}
+{% load i18n %}
+{% load allauth account %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+
+{% block extra_head %}
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container for the form */
+        .account-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        /* Heading */
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        /* Form Elements */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form .fields {
+            margin-bottom: 1rem;
+        }
+
+        form input {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        form input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Buttons */
+        button {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        button#passkey_login {
+            background-color: #28a745;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        button#passkey_login:hover {
+            background-color: #218838;
+        }
+
+        button[href] {
+            background-color: #6c757d;
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        button[href]:hover {
+            background-color: #5a6268;
+        }
+
+        /* Links */
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Horizontal Rule */
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 1.5rem 0;
+        }
+
+        /* Social Account Buttons */
+        .socialaccount_ballot {
+            margin-top: 1.5rem;
+        }
+
+        .socialaccount_providers {
+            list-style: none;
+            padding: 0;
+        }
+
+        .socialaccount_providers li {
+            margin-bottom: 0.5rem;
+        }
+
+        .socialaccount_providers a {
+            display: block;
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #333;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .socialaccount_providers a:hover {
+            background-color: #e2e6ea;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .account-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            form input, button {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="account-container">
+        {% element h1 %}
+            {% trans "Sign In" %}
+        {% endelement %}
+        {% if not SOCIALACCOUNT_ONLY %}
+            {% setvar link %}
+                <a href="{{ signup_url }}">
+                {% endsetvar %}
+                {% setvar end_link %}
+                </a>
+            {% endsetvar %}
+
+            {% url 'account_login' as login_url %}
+            {% element form form=form method="post" action=login_url tags="entrance,login" %}
+                {% slot body %}
+                    {% csrf_token %}
+                    {% element fields form=form unlabeled=True %}
+                    {% endelement %}
+                    {{ redirect_field }}
+                {% endslot %}
+                {% slot actions %}
+                    {% element button type="submit" tags="prominent,login" %}
+                        {% trans "Sign In" %}
+                    {% endelement %}
+                {% endslot %}
+            {% endelement %}
+            {% element p %}
+                {% blocktranslate %}If you have not created an account yet, then please {{ link }}sign up{{ end_link }} first.{% endblocktranslate %}
+            {% endelement %}
+        {% endif %}
+        {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
+            {% element hr %}
+            {% endelement %}
+            {% element button_group vertical=True %}
+                {% if PASSKEY_LOGIN_ENABLED %}
+                    {% element button type="submit" form="mfa_login" id="passkey_login" tags="prominent,login,outline,primary" %}
+                        {% trans "Sign in with a passkey" %}
+                    {% endelement %}
+                {% endif %}
+                {% if LOGIN_BY_CODE_ENABLED %}
+                    {% element button href=request_login_code_url tags="prominent,login,outline,primary" %}
+                        {% trans "Mail me a sign-in code" %}
+                    {% endelement %}
+                {% endif %}
+            {% endelement %}
+        {% endif %}
+        {% if SOCIALACCOUNT_ENABLED %}
+            {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+        {% endif %}
+    </div>
+{% endblock content %}
+
+{% block extra_body %}
+    {{ block.super }}
+    {% if PASSKEY_LOGIN_ENABLED %}
+        {% include "mfa/webauthn/snippets/login_script.html" with button_id="passkey_login" %}
+    {% endif %}
+{% endblock %}

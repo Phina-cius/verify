@@ -3,94 +3,56 @@
 {% load static %}
 
 {% block body %}
-
     {% include 'include/header_part.html' %}
-   <div class="detection_section">
+    <div class="detection_section">
     <!------camera section-->
-    <div class="camera-section">
-    {% if cam_status %}
-        <h3>Camera Status: <span style="color: green">Connected</span></h3>
-
-        <img src="{% url 'camera_feed' %}" width="640" height="480" class="camera_feed">
-
-    {% else %}
-        <h3>Camera Status: <span style="color: red" >Not Accessible</span></h3>
-    {% endif %}
-    </div>
+        <div class="camera-section">
+            {% if cam_status %}
+                <h3>Camera Status: <span style="color: green">Connected</span></h3>
+                <img src="{% url 'camera_feed' %}" width="640" height="480" class="camera_feed">
+            {% else %}
+                <h3>Camera Status: <span style="color: red" >Not Accessible</span></h3>
+            {% endif %}
+        </div>
     <!------end of camera section--->
 
     <!-------the data section--->
-    <div class="data-section">
-    <h3>Barcode Data:</h3>
-     <div class="barcode_and_button">
-    <textarea id="barcode_result" rows="3"></textarea>
-    <button id="btn_ReadQRCode">Read Barcode</button>
-     </div>
-    <h3>Product Details:</h3>
-    <div id="product_info" style="display: none;">
-<table class="product-table">
-    <thead>
-        <tr>
-            <th colspan="2">Product Information</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><strong>Title:</strong></td>
-            <td><span id="product_title"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Description:</strong></td>
-            <td><span id="product_description"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Brand:</strong></td>
-            <td><span id="product_brand"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Category:</strong></td>
-            <td><span id="product_category"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Model:</strong></td>
-            <td><span id="product_model"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Color:</strong></td>
-            <td><span id="product_color"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Size:</strong></td>
-            <td><span id="product_size"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Lowest Price:</strong></td>
-            <td><span id="product_lowest_price"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Highest Price:</strong></td>
-            <td><span id="product_highest_price"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Weight:</strong></td>
-            <td><span id="product_weight"></span></td>
-        </tr>
-        <tr>
-            <td><strong>Dimensions:</strong></td>
-            <td><span id="product_dimensions"></span></td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <h4>Images:</h4>
-                <div id="product_images"></div>
-            </td>
-        </tr>
-    </tbody>
-</table>
-    </div>
-    </div>
+        <div class="data-section">
+            <h3>Barcode Data:</h3>
+            <div class="barcode_and_button">
+                <textarea id="barcode_result" rows="3"></textarea>
+                <button id="btn_ReadQRCode">Read Barcode</button>
+            </div>
+            <h3>Product Details:</h3>
+            <div id="product_info" style="display: none;">
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th colspan="2">Product Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Regular product details -->
+            <tr id="product_details_row">
+                <td colspan="2">
+                    <strong>Title:</strong> <span id="product_title"></span><br>
+                    <strong>Description:</strong> <span id="product_description"></span><br>
+                    <strong>Brand:</strong> <span id="product_brand"></span><br>
+                    <strong>Category:</strong> <span id="product_category"></span><br>
+                    <strong>Images:</strong> <div id="product_images"></div><br> <!-- Fixed: Use a div for images -->
+                </td>
+            </tr>
+            <!-- Error message row -->
+            <tr id="product_error_row" style="display: none;">
+                <td colspan="2">
+                    <p style="color: red;">This product is not recognized. It may be fake.</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+        </div>
     <!-------the data section--->
-
     </div>
     <!-------the end of the fake detection section-->
 
@@ -98,53 +60,61 @@
 
     <script>
         $(document).ready(function () {
-            $("#btn_ReadQRCode").on("click", function () {
-                $.ajax({
-                    url: "{% url 'get_latest_barcode' %}",
-                    type: "GET",
-                    success: function (data) {
-                        if (data.barcode_data) {
-                            $("#barcode_result").val(data.barcode_type + ": " + data.barcode_data);
+    $("#btn_ReadQRCode").on("click", function () {
+        $.ajax({
+            url: "{% url 'get_latest_barcode' %}",
+            type: "GET",
+            success: function (data) {
+                if (data.barcode_data) {
+                    $("#barcode_result").val(data.barcode_type + ": " + data.barcode_data);
 
-                            if (data.product_info) {
-                                $("#product_info").show();
-                                $("#product_title").text(data.product_info.title || "N/A");
-                                $("#product_description").text(data.product_info.description || "N/A");
-                                $("#product_brand").text(data.product_info.brand || "N/A");
-                                $("#product_category").text(data.product_info.category || "N/A");
-                                $("#product_model").text(data.product_info.model || "N/A");
-                                $("#product_color").text(data.product_info.color || "N/A");
-                                $("#product_size").text(data.product_info.size || "N/A");
-                                $("#product_lowest_price").text(data.product_info.lowest_recorded_price || "N/A");
-                                $("#product_highest_price").text(data.product_info.highest_recorded_price || "N/A");
-                                $("#product_weight").text(data.product_info.weight || "N/A");
-                                $("#product_dimensions").text(data.product_info.dimension || "N/A");
+                    if (data.product_info) {
+                        // If product info is found, display it
+                        $("#product_info").show();
+                        $("#product_error_row").hide(); // Hide the error message
+                        $("#product_details_row").show(); // Show the product details
 
-                                // Display images
-                                let images = data.product_info.images || [];
-                                let imgContainer = $("#product_images");
-                                imgContainer.empty();
-                                if (images.length > 0) {
-                                    images.forEach(imgUrl => {
-                                        imgContainer.append(`<img src="${imgUrl}" width="100" height="100" style="margin:5px;">`);
-                                    });
-                                } else {
-                                    imgContainer.append("<p>No images available</p>");
-                                }
-                            } else {
-                                $("#product_info").hide();
-                            }
+                        // Populate product details
+                        $("#product_title").text(data.product_info.title || "N/A");
+                        $("#product_description").text(data.product_info.description || "N/A");
+                        $("#product_brand").text(data.product_info.brand || "N/A");
+                        $("#product_category").text(data.product_info.category || "N/A");
+
+                        // Display images
+                        let images = data.product_info.images || [];
+                        let imgContainer = $("#product_images");
+                        imgContainer.empty(); // Clear previous images
+                        if (images.length > 0) {
+                            images.forEach(imgUrl => {
+                                imgContainer.append(`<img src="${imgUrl}" width="100" height="100" style="margin:5px;">`);
+                            });
                         } else {
-                            $("#barcode_result").val("No barcode detected.");
-                            $("#product_info").hide();
+                            imgContainer.append("<p>No images available</p>");
                         }
-                    },
-                    error: function () {
-                        alert("Error retrieving barcode data.");
+                    } else if (data.error) {
+                        // If product is not found, display the error message
+                        $("#product_info").show(); // Ensure the product info section is visible
+                        $("#product_details_row").hide(); // Hide the product details
+                        $("#product_error_row").show(); // Show the error message
+
+                        // Clear images
+                        $("#product_images").empty();
+                    } else {
+                        // If no product info or error is returned, hide the product info section
+                        $("#product_info").hide();
                     }
-                });
-            });
+                } else {
+                    // If no barcode is detected
+                    $("#barcode_result").val("No barcode detected.");
+                    $("#product_info").hide();
+                }
+            },
+            error: function () {
+                alert("Error retrieving barcode data.");
+            }
         });
+    });
+});
     </script>
 
 {% endblock %}

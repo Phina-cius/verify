@@ -1,0 +1,21 @@
+{% extends 'layouts/a_layout.html' %}
+{% load static %}
+{% block aside %}
+    <aside class="aside">
+    <div class="top">
+        <div class="logo">
+            <a href="#" class="admin-logo">
+                <img src="{% static 'images/icons/barcode-scan.png' %}" alt="" class="logo-img">
+                <h2 class="logo-text">GenuineScan</h2>
+            </a>
+            <div class="close" id="close-btn">
+                 <i class="ri-close-large-line"></i>
+            </div>
+        </div>
+        <div class="side_bar">
+
+        </div>
+    </div>
+    </aside>
+
+{% endblock %}

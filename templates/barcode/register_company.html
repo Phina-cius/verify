@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block body %}
+     {% include 'include/header_part.html' %}
+     <section class="register-company">
+     <div class="register_form">
+
+         <p>register company</p>
+         <form method="post" action="" class="form">
+             {% csrf_token %}
+             <div class="input-part">
+                 <label for="company-name">ENTER COMPANY NAME</label>
+                 <input type="text" id="company-name" name="company_name">
+             </div>
+
+             <div class="input-part">
+                 <label for="business-license">PLEASE ENTER BUSINESS LICENSE</label>
+                 <input type="text" id="business-license" name="Business_licence">
+
+             </div>
+             <div class="input-part">
+                 <label for="address">ENTER BUSINESS ADDRESS</label>
+                 <input type="text" id="address" name="address">
+             </div>
+
+             <div class="input-part">
+                 <label for="phone-number">ENTER BUSSINESS PHONE NUMBER</label>
+                 <input type="tel" id="phone-number" name="phone_number">
+             </div>
+        <button type="submit" class="btn">Submit</button>
+    </form>
+     </div>
+     <div class="card_page">
+        <p>please register you company for free </p>
+
+     </div>
+
+     </section>
+{% endblock %}

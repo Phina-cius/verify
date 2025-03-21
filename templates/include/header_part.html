@@ -13,7 +13,38 @@
         </a>
 
     <nav class="nav">
+       <ul class="menu">
+           <li class="list active" >
+               <a href="{% url 'index' %}" class="link active">Verify</a>
+           </li>
+           {% if user.is_authenticated %}
+               {% if user_has_company %}
+                   <li class="list">
+                       <a class="link" href="{% url 'my_company' %}">My Company</a>
+                   </li>
 
+               {% else %}
+                   <li class="list">
+                       <a href="{% url 'register_company' %}" class="link">register company</a>
+
+                   </li>
+               {% endif %}
+           {% endif %}
+           {% if  user.is_authenticated %}
+               <li class="list">
+                   <a href="{% url 'account_logout' %}" class="link">logout</a>
+               </li>
+            {% else %}
+               <li class="list">
+                   <a href="{% url 'account_login' %}" class="link">login</a>
+               </li>
+               <li class="list">
+                   <a href="{% url 'account_signup' %}" class="link">register</a>
+               </li>
+
+           {% endif %}
+
+       </ul>
 
     </nav>
     </header>

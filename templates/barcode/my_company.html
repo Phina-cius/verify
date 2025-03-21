@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block body %}
+     {% include 'include/header_part.html' %}
+     <section class="my-company">
+
+         {% for manufacture in manufactures %}
+             <div class="card">
+                 <a href="/upload_product/{{ manufacture.id }}">
+                     <div class="top">
+                         <h3>{{ manufacture.company_name }}</h3>
+                     </div>
+                     <div class="mid">
+                         <img src="{% static 'images/icons/enterprise.png' %}" alt="" width="50" height="50">
+                     </div>
+                 </a>
+                 <div class="bottom">
+                     <a href="" class="update" style="background: green;">update</a>
+                     <a href="/delete_company/{{ manufacture.id }}" class="delete" style="background: red">delete</a>
+                 </div>
+             </div>
+         {% endfor %}
+
+         <!-- Add Company Card -->
+         <div class="card add-company-card" onclick="openModal()">
+             <p>Add Company</p>
+         </div>
+
+     </section>
+
+     <!-- Modal Pop-up Form -->
+     <div id="myModal" class="modal">
+         <div class="modal-content">
+             <span class="close" onclick="closeModal()">&times;</span>
+             <h2>Add New Company</h2>
+             <form method="post" action="" class="form">
+                 {% csrf_token %}
+                 <div class="input-part">
+                     <label for="company-name">ENTER COMPANY NAME</label>
+                     <input type="text" id="company-name" name="company_name" required>
+                 </div>
+
+                 <div class="input-part">
+                     <label for="business-license">PLEASE ENTER BUSINESS LICENSE</label>
+                     <input type="text" id="business-license" name="Business_licence" required>
+                 </div>
+
+                 <div class="input-part">
+                     <label for="address">ENTER BUSINESS ADDRESS</label>
+                     <input type="text" id="address" name="address" required>
+                 </div>
+
+                 <div class="input-part">
+                     <label for="phone-number">ENTER BUSINESS PHONE NUMBER</label>
+                     <input type="tel" id="phone-number" name="phone_number" required>
+                 </div>
+
+                 <button type="submit" class="btn">Submit</button>
+             </form>
+         </div>
+     </div>
+
+     <!-- JavaScript to Handle Modal -->
+     <script>
+         function openModal() {
+             document.getElementById("myModal").style.display = "block";
+         }
+
+         function closeModal() {
+             document.getElementById("myModal").style.display = "none";
+         }
+
+         // Close the modal if the user clicks outside of it
+         window.onclick = function(event) {
+             var modal = document.getElementById("myModal");
+             if (event.target == modal) {
+                 modal.style.display = "none";
+             }
+         }
+     </script>
+
+     <!-- CSS for Modal and Form -->
+     <style>
+         .modal {
+             display: none; /* Hidden by default */
+             position: fixed; /* Stay in place */
+             z-index: 1000; /* Sit on top */
+             left: 0;
+             top: 0;
+             width: 100%; /* Full width */
+             height: 100%; /* Full height */
+             overflow: auto; /* Enable scroll if needed */
+             background-color: rgb(0,0,0); /* Fallback color */
+             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+             padding-top: 60px;
+         }
+
+         .modal-content {
+             background-color: #fefefe;
+             margin: 5% auto; /* 15% from the top and centered */
+             padding: 20px;
+             border: 1px solid #888;
+             width: 80%; /* Could be more or less, depending on screen size */
+             max-width: 500px;
+         }
+
+         .close {
+             color: #aaa;
+             float: right;
+             font-size: 28px;
+             font-weight: bold;
+         }
+
+         .close:hover,
+         .close:focus {
+             color: black;
+             text-decoration: none;
+             cursor: pointer;
+         }
+
+         .add-company-card {
+             cursor: pointer;
+             text-align: center;
+             padding: 20px;
+             background-color: #f0f0f0;
+         }
+
+         .add-company-card:hover {
+             background-color: #e0e0e0;
+         }
+
+         .form {
+             display: flex;
+             flex-direction: column;
+             gap: 15px;
+         }
+
+         .input-part {
+             display: flex;
+             flex-direction: column;
+             gap: 5px;
+         }
+
+         .input-part label {
+             font-weight: bold;
+         }
+
+         .input-part input {
+             padding: 8px;
+             border: 1px solid #ccc;
+             border-radius: 4px;
+         }
+
+         .btn {
+             padding: 10px 20px;
+             background-color: green;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+         }
+
+         .btn:hover {
+             background-color: darkgreen;
+         }
+     </style>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'layouts/a_layout.html' %}
+
+{% load static %}
+
+{% block body %}
+   <div class="container">
+   <aside class="aside">
+       <div class="top">
+           <div class="logo">
+               <a href="">
+                      <img src="{% static 'images/icons/barcode-scan.png' %}" alt="" class="logo-img">
+                      <h2 class="logo-text">GenuineScan</h2>
+               </a>
+           </div>
+           <div class="close">
+               <i class="ri-close-large-line"></i>
+           </div>
+
+       </div>
+       <div class="side-bar">
+            <a href="{% url 'admin_dashboard' %}" >
+                <span><i class="ri-dashboard-line"></i></span>
+                <h3>dashboard</h3>
+            </a>
+            <a href="{% url 'admin_manufacturer' %}" class="active">
+                <span><i class="ri-building-3-line"></i></span>
+                <h3>Manufacturers</h3>
+            </a>
+            <a href="{% url 'admin_verification' %}">
+                <span><i class="ri-shield-check-line"></i></span>
+                <h3>Verification Logs</h3>
+            </a>
+            <a href="{% url 'admin_report' %}">
+                <span><i class="ri-error-warning-line"></i></span>
+                <h3>Reports</h3>
+                <span class="count">23</span>
+            </a>
+            <a href="{% url 'admin_feedback' %}">
+                <span><i class="ri-feedback-line"></i></span>
+                <h3>feedback</h3>
+                <span class="count">{{ total_feedback }}</span>
+            </a>
+            <a href="{% url 'account_logout' %}">
+                <span><i class="ri-logout-box-line"></i></span>
+                <h3>logout</h3>
+            </a>
+       </div>
+   </aside>
+
+   <!--=====end of  the side bar======---->
+   <main class="main">
+    <h1>Dashboard</h1>
+    <div class="insights-container">
+        <div class="insights">
+            <div class="number-manufacture">
+                <span><i class="ri-building-3-line"></i></span>
+                <div class="left">
+                    <h3>Manufactures</h3>
+                    <h1>{{ total_manufacturers }}</h1>
+                </div>
+            </div>
+            <div class="progress">
+                <svg>
+                    <circle cx="38" cy="38" r="36"></circle>
+                </svg>
+                <div class="number">
+                    <p>81%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="insights">
+            <div class="Pending-Approvals">
+                <span><i class="ri-shield-check-line"></i></span>
+                <div class="left">
+                    <h3>Pending approval</h3>
+                    <h1>{{ pending_approvals }}</h1>
+                </div>
+            </div>
+            <div class="progress">
+                <svg>
+                    <circle cx="38" cy="38" r="36"></circle>
+                </svg>
+                <div class="number">
+                    <p>81%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="insights">
+            <div class="Reported-Products">
+                <span><i class="ri-error-warning-line"></i></span>
+                <div class="left">
+                    <h3>reported product</h3>
+                    <h1>20</h1>
+                </div>
+            </div>
+            <div class="progress">
+                <svg>
+                    <circle cx="38" cy="38" r="36"></circle>
+                </svg>
+                <div class="number">
+                    <p>81%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+       <!---=====end of the insight======--->
+<div class="feedback">
+    <h2>Registered Company</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Licence Number</th>
+                <th>Status</th>
+                <th>Registration Date</th>
+                <th>address</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% if manufactures %}
+            {% for manufacture in manufactures %}
+            <tr>
+                <td>{{ manufacture.company_name }}</td>
+                <td>{{ manufacture.Business_licence }}</td>
+                <td>{{ manufacture.is_approved }}</td>
+                <td>12/02/2025</td>
+                <td>{{ manufacture.address }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+            <td><p>no registered company</p></td>
+            </tr>
+        {% endif %}
+        </tbody>
+
+
+
+    </table>
+</div>
+
+</main>
+
+<!---the end of th main -->
+
+   <div class="right">
+       <div class="top">
+           <button id="menu-btn">
+               <i class="ri-menu-line"></i>
+           </button>
+           <div class="profile">
+               <div class="infor">
+                   <p>hey <b>{{ request.user.username }}</b> <br>admin</p>
+               </div>
+           </div>
+       </div>
+
+       <!----end of a top-->
+       <div class="feedback">
+    <h2>Feedbacks</h2>
+    <div class="updates">
+        {% if feedbacks %}
+            {% for feedback in feedbacks %}
+        <div class="update">
+            <div class="message">
+                <p><b>{{ feedback.name }}</b> {{ feedback.message }}</p>
+                <small>2 mins ago</small>
+            </div>
+        </div>
+            {% endfor %}
+            {% else %}
+            <p>no feedback availlable</p>
+        {% endif %}
+
+
+
+
+    </div>
+</div>
+   </div>
+
+   </div>
+
+{% endblock %}
