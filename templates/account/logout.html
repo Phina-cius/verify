@@ -4,22 +4,167 @@
     {% trans "Sign Out" %}
 {% endblock head_title %}
 {% block content %}
-    {% element h1 %}
-        {% trans "Sign Out" %}
-    {% endelement %}
-    {% element p %}
-        {% trans 'Are you sure you want to sign out?' %}
-    {% endelement %}
-    {% url 'account_logout' as action_url %}
-    {% element form method="post" action=action_url no_visible_fields=True %}
-        {% slot body %}
-            {% csrf_token %}
-            {{ redirect_field }}
-        {% endslot %}
-        {% slot actions %}
-            {% element button type="submit" %}
-                {% trans 'Sign Out' %}
-            {% endelement %}
-        {% endslot %}
-    {% endelement %}
+<div class="signout-container">
+    <div class="signout-card">
+        <div class="signout-header">
+            <h1>{% trans "Sign Out" %}</h1>
+            <div class="signout-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+
+        <p class="signout-message">
+            {% trans 'Are you sure you want to sign out?' %}
+        </p>
+
+        {% url 'account_logout' as action_url %}
+        {% element form method="post" action=action_url no_visible_fields=True %}
+            {% slot body %}
+                {% csrf_token %}
+                {{ redirect_field }}
+            {% endslot %}
+            {% slot actions %}
+                <div class="signout-actions">
+                    <button type="submit" class="signout-button">
+                        {% trans 'Sign Out' %}
+                    </button>
+                    <a href="/" class="cancel-button">
+                        {% trans 'Cancel' %}
+                    </a>
+                </div>
+            {% endslot %}
+        {% endelement %}
+    </div>
+</div>
+
+<style>
+    /* Base Styles */
+    .signout-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position:relative;
+        margin-top: -130px;
+    }
+
+    .signout-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .signout-card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Header Styles */
+    .signout-header {
+        margin-bottom: 30px;
+    }
+
+    .signout-header h1 {
+        color: #2d3748;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .signout-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto;
+        background: #ffebee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .signout-icon svg {
+        width: 30px;
+        height: 30px;
+        color: #d32f2f;
+    }
+
+    /* Message Styles */
+    .signout-message {
+        color: #4a5568;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    /* Button Styles */
+    .signout-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .signout-button {
+        width: 100%;
+        padding: 15px;
+        background: #d32f2f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .signout-button:hover {
+        background: #b71c1c;
+        transform: translateY(-2px);
+    }
+
+    .cancel-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: none;
+        color: #4a5568;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .cancel-button:hover {
+        background: #f8f9fa;
+        border-color: #c3cfe2;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+        .signout-card {
+            padding: 30px 20px;
+        }
+
+        .signout-header h1 {
+            font-size: 24px;
+        }
+
+        .signout-button,
+        .cancel-button {
+            padding: 12px;
+            font-size: 15px;
+        }
+    }
+</style>
 {% endblock content %}

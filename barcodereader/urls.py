@@ -24,4 +24,5 @@ urlpatterns = [
     path('upload_product/<int:id>',views.upload_product,name='upload_product'),
     path('delete_company/<int:id>',views.delete_company),
     path('delete_products/<int:id>',views.delete_products),
+    path('user_feedback_page/',views.user_feedback_page,name="user_feedback_page"),
 ]

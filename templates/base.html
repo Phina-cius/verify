@@ -26,11 +26,13 @@
     href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
     rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <!----link to the css--->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+{% include 'include/notifications.html' %}
 {% block header %}
 	
 {% endblock %}
@@ -43,5 +45,19 @@
 
   <!---linking the javascript-->
   <script src="{% static 'js/main.js' %}"></script>
+<script>
+    // Auto-dismiss notifications after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const notifications = document.querySelectorAll('.notification');
+        notifications.forEach(function(notification) {
+            notification.style.opacity = '0';
+            setTimeout(function() {
+                notification.remove();
+            }, 500);
+        });
+    }, 5000);
+});
+</script>
 </body>
 </html>

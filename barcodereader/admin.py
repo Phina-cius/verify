@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ManufacturerProfile, Product, ProductImage, ProductVerificationLog, ReportedProduct, Feedback, Barcode
+from .models import ManufacturerProfile, Product, ProductImage,Counterfeit_report, ProductVerificationLog, ReportedProduct, Feedback, Barcode
 
 # Inline for Product Images
 class ProductImageInline(admin.TabularInline):  # or admin.StackedInline
@@ -57,3 +57,9 @@ class FeedbackAdmin(admin.ModelAdmin):
 class BarcodeAdmin(admin.ModelAdmin):
     list_display = ('barcode', 'qr_code', 'product')  # Include 'product' for clarity
     search_fields = ('barcode',)
+
+@admin.register(Counterfeit_report)
+class BarcodeAdmin(admin.ModelAdmin):
+    list_display = ('code','reported_at')  # Include 'product' for clarity
+    search_fields = ('code',)
+

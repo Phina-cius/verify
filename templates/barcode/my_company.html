@@ -4,20 +4,24 @@
 {% block body %}
      {% include 'include/header_part.html' %}
      <section class="my-company">
-
          {% for manufacture in manufactures %}
              <div class="card">
-                 <a href="/upload_product/{{ manufacture.id }}">
+                 <a href="/upload_product/{{ manufacture.id }}" class="card-link">
                      <div class="top">
-                         <h3>{{ manufacture.company_name }}</h3>
+                         <h3 class="company-name">{{ manufacture.company_name }}</h3>
+                         {% if manufacture.is_approved %}
+                             <span class="verified-badge">Verified</span>
+                         {% else %}
+                             <span class="verified-badge" style="background: #FF9800">Pending</span>
+                         {% endif %}
                      </div>
                      <div class="mid">
-                         <img src="{% static 'images/icons/enterprise.png' %}" alt="" width="50" height="50">
+                         <img src="{% static 'images/icons/enterprise.png' %}" alt="Company Icon" class="company-icon">
                      </div>
                  </a>
                  <div class="bottom">
-                     <a href="" class="update" style="background: green;">update</a>
-                     <a href="/delete_company/{{ manufacture.id }}" class="delete" style="background: red">delete</a>
+                     <a href="#" class="btn update">Update</a>
+                     <a href="/delete_company/{{ manufacture.id }}" class="btn deletebtn">Delete</a>
                  </div>
              </div>
          {% endfor %}

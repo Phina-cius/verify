@@ -9,14 +9,15 @@
     <header class="header">
         <a href="#" class="logo">
             <img src="{% static 'images/icons/barcode-scan.png' %}" alt="" class="logo-img">
-            <h2 class="logo-text">GenuineScan</h2>
+            <h2 class="logo-text"><span>Genuine</span>Scan</h2>
         </a>
 
     <nav class="nav">
        <ul class="menu">
-           <li class="list active" >
-               <a href="{% url 'index' %}" class="link active">Verify</a>
+           <li class="list" >
+               <a href="{% url 'index' %}" class="link">Verify</a>
            </li>
+
            {% if user.is_authenticated %}
                {% if user_has_company %}
                    <li class="list">
@@ -30,6 +31,9 @@
                    </li>
                {% endif %}
            {% endif %}
+           <li class="list" >
+               <a href="{% url 'user_feedback_page' %}" class="link">Provide Feedback</a>
+           </li>
            {% if  user.is_authenticated %}
                <li class="list">
                    <a href="{% url 'account_logout' %}" class="link">logout</a>
@@ -48,6 +52,5 @@
 
     </nav>
     </header>
-
 
 {% endblock %}

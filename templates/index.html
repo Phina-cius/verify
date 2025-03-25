@@ -1,121 +1,472 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block body %}
     {% include 'include/header_part.html' %}
     <div class="detection_section">
-    <!------camera section-->
+        <!------camera section-->
         <div class="camera-section">
             {% if cam_status %}
                 <h3>Camera Status: <span style="color: green">Connected</span></h3>
                 <img src="{% url 'camera_feed' %}" width="640" height="480" class="camera_feed">
             {% else %}
-                <h3>Camera Status: <span style="color: red" >Not Accessible</span></h3>
+                <h3>Camera Status: <span style="color: red">Not Accessible</span></h3>
             {% endif %}
         </div>
-    <!------end of camera section--->
+        <!------end of camera section--->
 
-    <!-------the data section--->
+        <!-------the data section--->
         <div class="data-section">
             <h3>Barcode Data:</h3>
             <div class="barcode_and_button">
                 <textarea id="barcode_result" rows="3"></textarea>
-                <button id="btn_ReadQRCode">Read Barcode</button>
+                <button id="btn_ReadQRCode" class="scan-btn">Read Barcode</button>
             </div>
             <h3>Product Details:</h3>
-            <div id="product_info" style="display: none;">
-    <table class="product-table">
-        <thead>
-            <tr>
-                <th colspan="2">Product Information</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Regular product details -->
-            <tr id="product_details_row">
-                <td colspan="2">
-                    <strong>Title:</strong> <span id="product_title"></span><br>
-                    <strong>Description:</strong> <span id="product_description"></span><br>
-                    <strong>Brand:</strong> <span id="product_brand"></span><br>
-                    <strong>Category:</strong> <span id="product_category"></span><br>
-                    <strong>Images:</strong> <div id="product_images"></div><br> <!-- Fixed: Use a div for images -->
-                </td>
-            </tr>
-            <!-- Error message row -->
-            <tr id="product_error_row" style="display: none;">
-                <td colspan="2">
-                    <p style="color: red;">This product is not recognized. It may be fake.</p>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+            <div id="product_info" class="product-info-container" style="display: none;">
+    <!-- Product Details Card -->
+                <div id="product_details" class="product-details-card">
+        <!-- Product Images Section -->
+                    <div class="product-images-section">
+                        <h3 class="section-label">Product Images</h3>
+                        <div class="product-images-container" id="product_images">
+                <!-- Images will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+
+        <!-- Product Information Section -->
+                    <div class="product-info-section">
+                        <h3 class="section-label">Product Information</h3>
+                        <div class="info-row">
+                            <span class="info-label">Product Name:</span>
+                            <span id="product_title" class="info-value">Loading...</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Brand:</span>
+                            <span id="product_brand" class="info-value">Loading...</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Category:</span>
+                            <span id="product_category" class="info-value">Loading...</span>
+                        </div>
+
+                        <div class="info-row full-width">
+                            <span class="info-label">Description:</span>
+                            <p id="product_description" class="info-value">Loading...</p>
+                        </div>
+
+
+
+                        <div class="product-actions">
+                            <button id="btn_verify_authenticity" class="verify-btn">
+                                <i class="fas fa-shield-alt"></i> Verify Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+    <!-- Error Card (shown when product not recognized) -->
+    <!-- Error Card (shown when product not recognized) -->
+                <div id="product_error" class="product-error-card">
+                    <form id="reportForm" method="post" action="">
+                        {% csrf_token %}
+                        <input type="hidden" id="reported_barcode" name="barcode" value="">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="error-content">
+                            <h3>Product Not Recognized</h3>
+                            <p>This product is not in our database. It may be counterfeit.</p>
+                            <button type="submit" id="btn_report_fake" class="report-btn">
+                                <i class="fas fa-flag"></i> Report Fake Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
-    <!-------the data section--->
+        <!-------the data section--->
     </div>
     <!-------the end of the fake detection section-->
 
     {% include 'include/footer.html' %}
 
+    <style>
+        /* Base Styles */
+        .detection_section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .camera-section, .data-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .barcode_and_button {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        #barcode_result {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Product Info Container */
+        .product-info-container {
+            display: none;
+            min-height: 400px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Product Details Card */
+        .product-details-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            min-height: 200px;
+        }
+
+        .product-images-container img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-images-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .product-text-details {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .product-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .product-brand, .product-category {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .product-brand::before {
+            content: "🏭";
+        }
+
+        .product-category::before {
+            content: "🏷️";
+        }
+
+        .product-description {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        /* Error Card */
+        .product-error-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+            height: 100%;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            color: #e74c3c;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-content h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .error-content p {
+            color: #666;
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+
+        /* Buttons */
+        .scan-btn, .verify-btn, .report-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .scan-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .verify-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .report-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .product-actions {
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .product-details-card {
+                flex-direction: row;
+            }
+
+            .product-images-container {
+                flex: 0 0 300px;
+                border-bottom: none;
+                border-right: 1px solid #eee;
+            }
+        }
+        .product-info-container {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-top: 20px;
+        min-height: 400px;
+    }
+
+    /* Section Labels */
+    .section-label {
+        font-size: 1.2rem;
+        color: #444;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* Product Details Card */
+    .product-details-card {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    /* Images Section */
+    .product-images-section {
+        margin-bottom: 2rem;
+    }
+
+    .product-images-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .product-images-container img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 5px;
+        background: #f9f9f9;
+    }
+
+    /* Information Section */
+    .product-info-section {
+        flex-grow: 1;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 1rem;
+        align-items: flex-start;
+    }
+
+    .info-row.full-width {
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #555;
+        min-width: 120px;
+    }
+
+    .info-value {
+        color: #333;
+        flex-grow: 1;
+    }
+
+    /* Authentication Status */
+    .authentication-status {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .status-badge.pending {
+        background: #FFF3CD;
+        color: #856404;
+    }
+
+    .status-badge.verified {
+        background: #D4EDDA;
+        color: #155724;
+    }
+
+    .status-badge.fake {
+        background: #F8D7DA;
+        color: #721C24;
+    }
+
+    /* Responsive Layout */
+    @media (min-width: 768px) {
+        .product-details-card {
+            flex-direction: row;
+            gap: 30px;
+        }
+
+        .product-images-section {
+            flex: 0 0 250px;
+            margin-bottom: 0;
+        }
+    }
+    </style>
+
     <script>
         $(document).ready(function () {
-    $("#btn_ReadQRCode").on("click", function () {
-        $.ajax({
-            url: "{% url 'get_latest_barcode' %}",
-            type: "GET",
-            success: function (data) {
-                if (data.barcode_data) {
-                    $("#barcode_result").val(data.barcode_type + ": " + data.barcode_data);
+            $("#btn_ReadQRCode").on("click", function () {
+                $.ajax({
+                    url: "{% url 'get_latest_barcode' %}",
+                    type: "GET",
+                     success: function (data) {
+                        if (data.barcode_data) {
+                            $("#barcode_result").val(data.barcode_type + ": " + data.barcode_data);
+                            $("#product_info").show();
 
-                    if (data.product_info) {
-                        // If product info is found, display it
-                        $("#product_info").show();
-                        $("#product_error_row").hide(); // Hide the error message
-                        $("#product_details_row").show(); // Show the product details
+                            if (data.product_info) {
+                // Show product details
+                $("#product_details").show();
+                $("#product_error").hide();
 
-                        // Populate product details
-                        $("#product_title").text(data.product_info.title || "N/A");
-                        $("#product_description").text(data.product_info.description || "N/A");
-                        $("#product_brand").text(data.product_info.brand || "N/A");
-                        $("#product_category").text(data.product_info.category || "N/A");
+                // Populate product details
+                $("#product_title").text(data.product_info.title || "Not Available");
+                $("#product_brand").text(data.product_info.brand || "Not Available");
+                $("#product_category").text(data.product_info.category || "Not Available");
+                $("#product_description").text(data.product_info.description || "No description available");
 
-                        // Display images
-                        let images = data.product_info.images || [];
-                        let imgContainer = $("#product_images");
-                        imgContainer.empty(); // Clear previous images
-                        if (images.length > 0) {
-                            images.forEach(imgUrl => {
-                                imgContainer.append(`<img src="${imgUrl}" width="100" height="100" style="margin:5px;">`);
-                            });
-                        } else {
-                            imgContainer.append("<p>No images available</p>");
-                        }
-                    } else if (data.error) {
-                        // If product is not found, display the error message
-                        $("#product_info").show(); // Ensure the product info section is visible
-                        $("#product_details_row").hide(); // Hide the product details
-                        $("#product_error_row").show(); // Show the error message
-
-                        // Clear images
-                        $("#product_images").empty();
-                    } else {
-                        // If no product info or error is returned, hide the product info section
-                        $("#product_info").hide();
-                    }
+                // Display images
+                let images = data.product_info.images || [];
+                let imgContainer = $("#product_images");
+                imgContainer.empty();
+                if (images.length > 0) {
+                    images.forEach(imgUrl => {
+                        imgContainer.append(`<img src="${imgUrl}" alt="Product image">`);
+                    });
                 } else {
-                    // If no barcode is detected
-                    $("#barcode_result").val("No barcode detected.");
-                    $("#product_info").hide();
+                    imgContainer.append('<div class="no-images">No images available</div>');
                 }
-            },
-            error: function () {
-                alert("Error retrieving barcode data.");
+
+                // Update authentication status if available
+                if (data.authenticity_status) {
+                    $("#auth_status")
+                        .removeClass("pending verified fake")
+                        .addClass(data.authenticity_status)
+                        .text(data.authenticity_status === "verified"
+                            ? "Verified Authentic"
+                            : "Potential Counterfeit");
+                }
+            } else {
+                // Show error message
+                $("#product_details").hide();
+                $("#product_error").show();
             }
+        }
+    },
+                    error: function () {
+                        alert("Error retrieving barcode data.");
+                    }
+                });
+            });
+
+            // Report fake product button handler
+            $("#btn_report_fake").on("click", function() {
+                if (confirm("Are you sure you want to report this product as fake?")) {
+                    // Add your reporting logic here
+                    alert("Thank you for reporting. We'll investigate this product.");
+                }
+            });
+
+            // Verify authenticity button handler
+            $("#btn_verify_authenticity").on("click", function() {
+                // Add your verification logic here
+                alert("Product authenticity verification in progress...");
+            });
         });
-    });
-});
     </script>
-
 {% endblock %}
-

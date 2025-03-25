@@ -1,0 +1,10 @@
+{% if messages %}
+<div class="notification-container">
+    {% for message in messages %}
+    <div class="notification notification-{{ message.tags }}">
+        <button class="delete" onclick="this.parentElement.remove()"></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

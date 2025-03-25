@@ -3,22 +3,22 @@
 {% load static %}
 
 {% block body %}
+<div class="admin-dashboard">
    <div class="container">
-   <aside class="aside">
+ <aside class="aside">
        <div class="top">
            <div class="logo">
-               <a href="">
-                      <img src="{% static 'images/icons/barcode-scan.png' %}" alt="" class="logo-img">
-                      <h2 class="logo-text">GenuineScan</h2>
+               <a href="" class="logo-link">
+                   <img src="{% static 'images/icons/barcode-scan.png' %}" alt="" class="logo-img">
+                   <h2 class="logo-text"><span>Genuine</span>Scan</h2>
                </a>
            </div>
            <div class="close">
                <i class="ri-close-large-line"></i>
            </div>
-
        </div>
        <div class="side-bar">
-            <a href="{% url 'admin_dashboard' %}" >
+            <a href="{% url 'admin_dashboard' %}">
                 <span><i class="ri-dashboard-line"></i></span>
                 <h3>dashboard</h3>
             </a>
@@ -26,14 +26,14 @@
                 <span><i class="ri-building-3-line"></i></span>
                 <h3>Manufacturers</h3>
             </a>
-            <a href="{% url 'admin_verification' %}" >
+            <a href="{% url 'admin_verification' %}">
                 <span><i class="ri-shield-check-line"></i></span>
                 <h3>Verification Logs</h3>
             </a>
             <a href="{% url 'admin_report' %}" class="active">
                 <span><i class="ri-error-warning-line"></i></span>
                 <h3>Reports</h3>
-                <span class="count">23</span>
+                <span class="count">{{ counterfeit_reports_count }}</span>
             </a>
             <a href="{% url 'admin_feedback' %}">
                 <span><i class="ri-feedback-line"></i></span>
@@ -47,142 +47,162 @@
        </div>
    </aside>
 
-   <!--=====end of  the side bar======---->
+   <!-- Main Content -->
    <main class="main">
-    <h1>Dashboard</h1>
-    <div class="insights-container">
-        <div class="insights">
-            <div class="number-manufacture">
-                <span><i class="ri-building-3-line"></i></span>
-                <div class="left">
-                    <h3>Manufactures</h3>
-                    <h1>{{ total_manufacturers }}</h1>
-                </div>
+    <div class="reports-header">
+        <h1>Product Reports</h1>
+        <div class="reports-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_reports }}</div>
+                <div class="stat-label">Total Reports</div>
             </div>
-            <div class="progress">
-                <svg>
-                    <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                    <p>81%</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ pending_reports }}</div>
+                <div class="stat-label">Pending</div>
             </div>
-        </div>
-
-        <div class="insights">
-            <div class="Pending-Approvals">
-                <span><i class="ri-shield-check-line"></i></span>
-                <div class="left">
-                    <h3>Pending approval</h3>
-                    <h1>{{ pending_approvals }}</h1>
-                </div>
-            </div>
-            <div class="progress">
-                <svg>
-                    <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                    <p>81%</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="insights">
-            <div class="Reported-Products">
-                <span><i class="ri-error-warning-line"></i></span>
-                <div class="left">
-                    <h3>reported product</h3>
-                    <h1>20</h1>
-                </div>
-            </div>
-            <div class="progress">
-                <svg>
-                    <circle cx="38" cy="38" r="36"></circle>
-                </svg>
-                <div class="number">
-                    <p>81%</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ resolved_reports }}</div>
+                <div class="stat-label">Resolved</div>
             </div>
         </div>
     </div>
 
-       <!---=====end of the insight======--->
-<div class="feedback">
-    <h2>Registered Company</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Company Name</th>
-                <th>Licence Number</th>
-                <th>Status</th>
-                <th>Registration Date</th>
-                <th>address</th>
-            </tr>
-        </thead>
+    <div class="search-filter">
+        <div class="search-box">
+            <i class="ri-search-line"></i>
+            <input type="text" placeholder="Search reports..." id="report-search">
+        </div>
+        <div class="filter-options">
+            <select id="report-filter">
+                <option value="all">All Reports</option>
+                <option value="pending">Pending Only</option>
+                <option value="resolved">Resolved Only</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+            </select>
+            <button class="btn primary">
+                <i class="ri-filter-line"></i> Filter
+            </button>
+        </div>
+    </div>
 
-        <tbody>
-        {% if manufactures %}
-            {% for manufacture in manufactures %}
-            <tr>
-                <td>{{ manufacture.company_name }}</td>
-                <td>{{ manufacture.Business_licence }}</td>
-                <td>{{ manufacture.is_approved }}</td>
-                <td>12/02/2025</td>
-                <td>{{ manufacture.address }}</td>
-            </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-            <td><p>no registered company</p></td>
-            </tr>
-        {% endif %}
-        </tbody>
+    <div class="reports-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Report Type</th>
+                    <th>Reported By</th>
+                    <th>Date Reported</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            <div class="product-name">{{ report.product.name }}</div>
+                            <div class="product-code">Code: {{ report.product.barcode.barcode }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="report-type">{{ report.get_report_type_display }}</span>
+                    </td>
+                    <td>
+                        {% if report.reported_by %}
+                            {{ report.reported_by.username }}
+                        {% else %}
+                            Anonymous
+                        {% endif %}
+                    </td>
+                    <td>{{ report.reported_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="status-badge {% if report.resolved %}resolved{% else %}pending{% endif %}">
+                            {% if report.resolved %}Resolved{% else %}Pending{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'report_detail' report.id %}" class="btn view">
+                                <i class="ri-eye-line"></i> View
+                            </a>
+                            {% if not report.resolved %}
+                                <button class="btn resolve" data-report-id="{{ report.id }}">
+                                    <i class="ri-check-line"></i> Resolve
+                                </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="no-data">No reports found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <div class="pagination">
+            <span class="step-links">
+                {% if reports.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ reports.previous_page_number }}">previous</a>
+                {% endif %}
 
+                <span class="current">
+                    Page {{ reports.number }} of {{ reports.paginator.num_pages }}.
+                </span>
 
-    </table>
-</div>
-
+                {% if reports.has_next %}
+                    <a href="?page={{ reports.next_page_number }}">next</a>
+                    <a href="?page={{ reports.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
 </main>
 
-<!---the end of th main -->
-
-   <div class="right">
-       <div class="top">
-           <button id="menu-btn">
-               <i class="ri-menu-line"></i>
-           </button>
-           <div class="profile">
-               <div class="infor">
-                   <p>hey <b>{{ request.user.username }}</b> <br>admin</p>
-               </div>
-           </div>
-       </div>
-
-       <!----end of a top-->
-       <div class="feedback">
-    <h2>Feedbacks</h2>
-    <div class="updates">
-        {% if feedbacks %}
-            {% for feedback in feedbacks %}
-        <div class="update">
-            <div class="message">
-                <p><b>{{ feedback.name }}</b> {{ feedback.message }}</p>
-                <small>2 mins ago</small>
+<!-- Right Sidebar -->
+<div class="right">
+    <div class="top">
+        <button id="menu-btn">
+            <i class="ri-menu-line"></i>
+        </button>
+        <div class="profile">
+            <div class="infor">
+                <p>hey <b>{{ request.user.username }}</b> <br>admin</p>
             </div>
         </div>
+    </div>
+
+    <div class="recent-feedback">
+        <h2>Recent Feedback</h2>
+        <div class="feedback-list">
+            {% for feedback in recent_feedback %}
+            <div class="feedback-item">
+                <div class="feedback-header">
+                    <span class="sender-name">{{ feedback.name }}</span>
+                    <span class="feedback-time">{{ feedback.created_at|timesince }} ago</span>
+                </div>
+                <div class="feedback-message">
+                    <p>{{ feedback.message|truncatechars:60 }}</p>
+                </div>
+                <div class="feedback-actions">
+                    <a href="{% url 'admin_feedback' %}" class="btn view">View All</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-feedback">
+                <i class="ri-feedback-line"></i>
+                <p>No recent feedback</p>
+            </div>
             {% endfor %}
-            {% else %}
-            <p>no feedback availlable</p>
-        {% endif %}
-
-
-
-
+        </div>
     </div>
 </div>
-   </div>
 
-   </div>
-
+</div>
+</div>
 {% endblock %}

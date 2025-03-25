@@ -1,4 +1,5 @@
 {% extends "account/base_entrance.html" %}
+{% load static %}
 {% load i18n %}
 {% load allauth account %}
 {% block head_title %}
@@ -7,161 +8,237 @@
 
 {% block extra_head %}
     <style>
-        /* General Styles */
+        :root {
+            --primary-color: #10B981; /* Emerald green */
+            --primary-hover: #059669;
+            --secondary-color: #3B82F6; /* Blue */
+            --text-color: #1F2937;
+            --light-gray: #F3F4F6;
+            --border-color: #E5E7EB;
+            --error-color: #EF4444;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #F9FAFB;
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            line-height: 1.5;
         }
 
-        /* Container for the form */
         .account-container {
             background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 400px;
-            text-align: left;
+            max-width: 420px;
+            margin: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Heading */
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: #333;
+        .account-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
         }
 
-        /* Form Elements */
-        form {
+        .logo {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.75rem;
+            gap: 0.75rem;
         }
 
-        form .fields {
-            margin-bottom: 1rem;
+        .logo-img {
+            width: 42px;
+            height: 42px;
         }
 
-        form input {
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            position: relative;
         }
 
-        form input:focus {
-            border-color: #007bff;
-            outline: none;
+        .logo-text span {
+            color: var(--primary-color);
         }
 
-        /* Buttons */
-        button {
-            padding: 0.75rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-        button#passkey_login {
-            background-color: #28a745;
-            color: #fff;
-            margin-bottom: 1rem;
-        }
-
-        button#passkey_login:hover {
-            background-color: #218838;
-        }
-
-        button[href] {
-            background-color: #6c757d;
-            color: #fff;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        button[href]:hover {
-            background-color: #5a6268;
-        }
-
-        /* Links */
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Horizontal Rule */
-        hr {
-            border: 0;
-            height: 1px;
-            background: #ddd;
-            margin: 1.5rem 0;
-        }
-
-        /* Social Account Buttons */
-        .socialaccount_ballot {
-            margin-top: 1.5rem;
-        }
-
-        .socialaccount_providers {
-            list-style: none;
-            padding: 0;
-        }
-
-        .socialaccount_providers li {
+        .welcome h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
 
-        .socialaccount_providers a {
-            display: block;
-            padding: 0.75rem;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            color: #333;
-            text-align: center;
-            transition: background-color 0.3s ease;
+        .subheading {
+            color: #6B7280;
+            margin-bottom: 2rem;
+            font-size: 1rem;
         }
 
-        .socialaccount_providers a:hover {
-            background-color: #e2e6ea;
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        form label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        form input {
+            padding: 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        form input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -0.75rem;
+        }
+
+        .forgot-password a {
+            color: #6B7280;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #9CA3AF;
+            font-size: 0.875rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        .alternative-login {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .alternative-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alternative-btn:hover {
+            background: var(--light-gray);
+            border-color: #D1D5DB;
+        }
+
+        .alternative-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6B7280;
+            font-size: 0.875rem;
+        }
+
+        .signup-link a {
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error messages */
+        .errorlist {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            padding-left: 0;
+            list-style: none;
         }
 
         /* Responsive Design */
         @media (max-width: 480px) {
             .account-container {
-                padding: 1rem;
+                padding: 1.75rem;
+                margin: 0.75rem;
             }
 
-            h1 {
+            .welcome h1 {
                 font-size: 1.5rem;
-            }
-
-            form input, button {
-                padding: 0.5rem;
-                font-size: 0.875rem;
             }
         }
     </style>
@@ -169,23 +246,40 @@
 
 {% block content %}
     <div class="account-container">
-        {% element h1 %}
-            {% trans "Sign In" %}
-        {% endelement %}
-        {% if not SOCIALACCOUNT_ONLY %}
-            {% setvar link %}
-                <a href="{{ signup_url }}">
-                {% endsetvar %}
-                {% setvar end_link %}
-                </a>
-            {% endsetvar %}
+        <div class="logo">
+            <img src="{% static 'images/icons/barcode-scan.png' %}" alt="GenuineScan Logo" class="logo-img">
+            <h2 class="logo-text"><span>Genuine</span>Scan</h2>
+        </div>
 
+        <div class="welcome">
+            <h1>Welcome back!</h1>
+            <p class="subheading">Sign in to your account to continue</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not SOCIALACCOUNT_ONLY %}
             {% url 'account_login' as login_url %}
             {% element form form=form method="post" action=login_url tags="entrance,login" %}
                 {% slot body %}
                     {% csrf_token %}
-                    {% element fields form=form unlabeled=True %}
-                    {% endelement %}
+                    <div class="form-group">
+                        <label for="id_login">Email</label>
+                        <input type="email" name="login" placeholder="Enter your email" required id="id_login">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password">Password</label>
+                        <input type="password" name="password" placeholder="Enter your password" required id="id_password">
+                        <div class="forgot-password">
+                            <a href="{% url 'account_reset_password' %}">Forgot password?</a>
+                        </div>
+                    </div>
                     {{ redirect_field }}
                 {% endslot %}
                 {% slot actions %}
@@ -194,27 +288,43 @@
                     {% endelement %}
                 {% endslot %}
             {% endelement %}
-            {% element p %}
-                {% blocktranslate %}If you have not created an account yet, then please {{ link }}sign up{{ end_link }} first.{% endblocktranslate %}
-            {% endelement %}
+
+            <div class="signup-link">
+                {% setvar link %}
+                    <a href="{{ signup_url }}">
+                {% endsetvar %}
+                {% setvar end_link %}
+                    </a>
+                {% endsetvar %}
+                {% blocktranslate %}Don't have an account? {{ link }}Sign up{{ end_link }}{% endblocktranslate %}
+            </div>
         {% endif %}
+
         {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
-            {% element hr %}
-            {% endelement %}
-            {% element button_group vertical=True %}
+            <div class="divider">or</div>
+
+            <div class="alternative-login">
                 {% if PASSKEY_LOGIN_ENABLED %}
                     {% element button type="submit" form="mfa_login" id="passkey_login" tags="prominent,login,outline,primary" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                         {% trans "Sign in with a passkey" %}
                     {% endelement %}
                 {% endif %}
                 {% if LOGIN_BY_CODE_ENABLED %}
                     {% element button href=request_login_code_url tags="prominent,login,outline,primary" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
                         {% trans "Mail me a sign-in code" %}
                     {% endelement %}
                 {% endif %}
-            {% endelement %}
+            </div>
         {% endif %}
+
         {% if SOCIALACCOUNT_ENABLED %}
+            <div class="divider">or</div>
             {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
         {% endif %}
     </div>

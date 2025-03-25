@@ -37,7 +37,7 @@ class Product(models.Model):
     manufacturer = models.ForeignKey(ManufacturerProfile, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=255)
     date_of_manufacture = models.DateField()
-    date_of_expiry = models.DateField()
+    date_of_expiry = models.DateField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -143,3 +143,13 @@ class Feedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.name
+
+
+
+#this is the table for the counterfait product that are reported
+class Counterfeit_report(models.Model):
+    code = models.CharField(max_length=100,  blank=True, null=True)
+    reported_at=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return qrcode
