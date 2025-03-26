@@ -150,6 +150,8 @@ class Feedback(models.Model):
 class Counterfeit_report(models.Model):
     code = models.CharField(max_length=100,  blank=True, null=True)
     reported_at=models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)  # Add this field
+    resolved_at = models.DateTimeField(null=True, blank=True)  # Optional
 
     def __str__(self):
         return qrcode

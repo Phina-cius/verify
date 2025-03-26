@@ -9,7 +9,7 @@ from django.http import Http404
 from barcodereader.decorator import admin_only
 from utills.django_open_cv import CameraStreamingWidget
 from utills.upcitemdb import BarcodeVerifier
-from barcodereader.models import ManufacturerProfile,Product,Feedback,Barcode,ProductImage,Counterfeit_report
+from barcodereader.models import ManufacturerProfile,Product,Feedback,Barcode,ProductImage,Counterfeit_report,ProductVerificationLog
 from utills.notifications import NotificationManager
 import uuid
 from django.utils.crypto import get_random_string
@@ -86,53 +86,231 @@ def dashboard(request):
     }
 
     return render(request,'barcode/admin_dashboard.html',context)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.db.models import Q
+from django.core.paginator import Paginator
+from .models import ManufacturerProfile, Product
+from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.http import require_POST
+
+def admin_check(user):
+    return user.is_superuser or user.is_staff
 
 
-@admin_only
+@user_passes_test(admin_check)
 def admin_manufacturer(request):
-    # Get all manufacturers
-    manufacturers = ManufacturerProfile.objects.all().order_by('-created_at')
+    # Initial queryset
+    manufacturers = ManufacturerProfile.objects.select_related('user').prefetch_related('products').all()
 
-    # Get recent counterfeit reports (last 5)
-    recent_reports = Counterfeit_report.objects.all().order_by('-reported_at')[:5]
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        manufacturers = manufacturers.filter(
+            Q(company_name__icontains=search_query) |
+            Q(Business_licence__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(phone_number__icontains=search_query)
+        )
 
-    # Counts
-    total_feedback = Feedback.objects.all().count()
-    counterfeit_reports_count = Counterfeit_report.objects.all().count()
+    # Status filtering
+    status_filter = request.GET.get('status', 'all')
+    if status_filter == 'approved':
+        manufacturers = manufacturers.filter(is_approved=True)
+    elif status_filter == 'pending':
+        manufacturers = manufacturers.filter(is_approved=False)
 
-    # Pagination for manufacturers
-    paginator = Paginator(manufacturers, 10)  # Show 10 manufacturers per page
+    # Sorting
+    sort_by = request.GET.get('sort', '-created_at')
+    if sort_by in ['company_name', 'created_at', 'user__email']:
+        manufacturers = manufacturers.order_by(sort_by)
+
+    # Pagination
+    paginator = Paginator(manufacturers, 25)  # Show 25 manufacturers per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'manufacturers': page_obj,
-        'recent_reports': recent_reports,
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'sort_by': sort_by,
+        'total_manufacturers': manufacturers.count(),
+        'approved_count': manufacturers.filter(is_approved=True).count(),
+        'pending_count': manufacturers.filter(is_approved=False).count(),
+    }
+    return render(request, 'barcode/admin_manufacturer.html', context)
+
+@require_POST
+@user_passes_test(admin_check)
+def approve_manufacturer(request, manufacturer_id):
+    manufacturer = get_object_or_404(ManufacturerProfile, id=manufacturer_id)
+    manufacturer.is_approved = True
+    manufacturer.save()
+    messages.success(request, f'{manufacturer.company_name} has been approved successfully!')
+    return redirect('admin_manufacturer')
+
+
+@require_POST
+@user_passes_test(admin_check)
+def reject_manufacturer(request, manufacturer_id):
+    manufacturer = get_object_or_404(ManufacturerProfile, id=manufacturer_id)
+    company_name = manufacturer.company_name
+    manufacturer.delete()
+    messages.success(request, f'{company_name} has been rejected and removed from the system.')
+    return redirect('admin_manufacturer')
+
+
+@user_passes_test(admin_check)
+def manufacturer_detail(request, manufacturer_id):
+    manufacturer = get_object_or_404(
+        ManufacturerProfile.objects.select_related('user').prefetch_related('products'),
+        id=manufacturer_id
+    )
+    products = manufacturer.products.all().order_by('-created_at')
+
+    # Product search within manufacturer
+    product_search = request.GET.get('product_search', '')
+    if product_search:
+        products = products.filter(
+            Q(name__icontains=product_search) |
+            Q(date_of_manufacture__icontains=product_search)
+        )
+
+        context = {
+            'manufacturer': manufacturer,
+            'products': products,
+            'product_search': product_search,
+        }
+    return render(request, 'barcode/manufacturer_detail.html', context)
+
+
+from django.db.models import Q
+from django.core.paginator import Paginator
+
+
+def admin_manufacturer(request):
+    manufacturers = ManufacturerProfile.objects.select_related('user').prefetch_related('products').all()
+
+    # Search functionality
+    search_query = request.GET.get('q', '')
+    if search_query:
+        manufacturers = manufacturers.filter(
+            Q(company_name__icontains=search_query) |
+            Q(Business_licence__icontains=search_query) |
+            Q(user__email__icontains=search_query)
+        )
+
+    # Status filtering
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'approved':
+        manufacturers = manufacturers.filter(is_approved=True)
+    elif status_filter == 'pending':
+        manufacturers = manufacturers.filter(is_approved=False)
+
+    # Sorting
+    sort_by = request.GET.get('sort', '-created_at')
+    if sort_by in ['company_name', '-company_name', 'created_at', '-created_at']:
+        manufacturers = manufacturers.order_by(sort_by)
+
+    # Pagination
+    paginator = Paginator(manufacturers, 25)  # Show 25 per page
+    page_number = request.GET.get('page')
+    manufacturers = paginator.get_page(page_number)
+
+    context = {
+        'manufacturers': manufacturers,
+        'approved_count': ManufacturerProfile.objects.filter(is_approved=True).count(),
+        'pending_count': ManufacturerProfile.objects.filter(is_approved=False).count(),
+    }
+    return render(request, 'barcode/admin_manufacturer.html', context)
+
+
+@admin_only
+def admin_feedback(request):
+    feedback_list = Feedback.objects.all().order_by('-created_at')
+    total_feedback = feedback_list.count()
+
+    # Pagination
+    paginator = Paginator(feedback_list, 10)  # Show 10 feedback per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'feedback_list': page_obj,  # Now using paginated data
+        'total_feedback': total_feedback,
+        'recent_feedback': feedback_list[:5]  # For sidebar if needed
+    }
+    return render(request, 'barcode/admin_feedback.html', context)
+
+@admin_only
+def admin_verification(request):
+    # Get all verification logs ordered by most recent
+    verification_logs = ProductVerificationLog.objects.select_related(
+        'product',
+        'product__manufacturer',
+        'product__barcode',
+        'scanned_by'
+    ).order_by('-scanned_at')
+
+    # Get counts for stats
+    total_verifications = verification_logs.count()
+    genuine_count = verification_logs.filter(is_verified=True).count()
+    counterfeit_count = verification_logs.filter(is_verified=False).count()
+
+    # Get recent counterfeits (last 5)
+    recent_counterfeits = verification_logs.filter(is_verified=False)[:5]
+
+    # Other context data
+    counterfeit_reports_count = Counterfeit_report.objects.count()
+    total_feedback = Feedback.objects.count()
+
+    context = {
+        'verification_logs': verification_logs,
+        'total_verifications': total_verifications,
+        'genuine_count': genuine_count,
+        'counterfeit_count': counterfeit_count,
+        'recent_counterfeits': recent_counterfeits,
         'counterfeit_reports_count': counterfeit_reports_count,
         'total_feedback': total_feedback,
     }
-    return render(request, 'barcode/admin_manufacturer.html', context)
-@admin_only
-def admin_feedback(request):
-    total_feedback = Feedback.objects.all().count()
-    context = {
-        'total_feedback': total_feedback,
-    }
-    return  render(request,'barcode/admin_feedback.html',context)
-@admin_only
-def admin_verification(request):
-    total_feedback = Feedback.objects.all().count()
-    context = {
-        'total_feedback': total_feedback,
-    }
-    return render(request,'barcode/verification_logs.html',context)
+    return render(request, 'barcode/verification_logs.html', context)
+
+
 @admin_only
 def admin_report(request):
-    total_feedback = Feedback.objects.all().count()
+    # Get all reports ordered by most recent
+    reports = Counterfeit_report.objects.all().order_by('-reported_at')
+
+    # Get counts for stats
+    total_reports = reports.count()
+    pending_reports = reports.filter(resolved=False).count()
+    resolved_reports = reports.filter(resolved=True).count()
+
+    # Pagination
+    paginator = Paginator(reports, 25)  # Show 25 reports per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Get recent feedback (last 5)
+    recent_feedback = Feedback.objects.order_by('-created_at')[:5]
+
+    # Other context data
+    counterfeit_reports_count = Counterfeit_report.objects.filter(resolved=False).count()
+    total_feedback = Feedback.objects.count()
+
     context = {
+        'reports': page_obj,
+        'total_reports': total_reports,
+        'pending_reports': pending_reports,
+        'resolved_reports': resolved_reports,
+        'recent_feedback': recent_feedback,
+        'counterfeit_reports_count': counterfeit_reports_count,
         'total_feedback': total_feedback,
     }
-    return render(request,'barcode/admin_reports.html',context)
+    return render(request, 'barcode/admin_reports.html', context)
+
 
 @admin_only
 def approve_manufacturer(request,id):

@@ -5,7 +5,7 @@
 {% block body %}
 <div class="admin-dashboard">
    <div class="container">
-   <aside class="aside">
+    <aside class="aside">
        <div class="top">
            <div class="logo">
                <a href="" class="logo-link">
@@ -25,6 +25,7 @@
             <a href="{% url 'admin_manufacturer' %}" class="active">
                 <span><i class="ri-building-3-line"></i></span>
                 <h3>Manufacturers</h3>
+                <span class="count">{{ pending_count }}</span>
             </a>
             <a href="{% url 'admin_verification' %}">
                 <span><i class="ri-shield-check-line"></i></span>
@@ -47,24 +48,49 @@
        </div>
    </aside>
 
+
    <!-- Main Content -->
    <main class="main">
     <h1>Manufacturers</h1>
+
+    <div class="table-controls">
+        <div class="table-summary">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} manufacturers
+            <span class="summary-badge approved">{{ approved_count }} approved</span>
+            <span class="summary-badge pending">{{ pending_count }} pending</span>
+        </div>
+    </div>
 
     <div class="search-filter">
         <form method="GET" action="{% url 'admin_manufacturer' %}">
             <div class="search-box">
                 <i class="ri-search-line"></i>
-                <input type="text" name="search" placeholder="Search manufacturers..." value="{{ request.GET.search }}">
+                <input type="text" name="q" placeholder="Search by name, license or email..."
+                       value="{{ request.GET.q }}">
+                <button type="submit" class="search-btn">
+                    <i class="ri-search-line"></i>
+                </button>
             </div>
-            <div class="filter-options">
-                <select name="status">
-                    <option value="all" {% if request.GET.status == 'all' %}selected{% endif %}>All Status</option>
-                    <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
-                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
-                </select>
+            <div class="filter-group">
+                <div class="filter-option">
+                    <label>Status:</label>
+                    <select name="status">
+                        <option value="">All Status</option>
+                        <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+                <div class="filter-option">
+                    <label>Sort by:</label>
+                    <select name="sort">
+                        <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Newest</option>
+                        <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Oldest</option>
+                        <option value="company_name" {% if request.GET.sort == 'company_name' %}selected{% endif %}>Name (A-Z)</option>
+                        <option value="-company_name" {% if request.GET.sort == '-company_name' %}selected{% endif %}>Name (Z-A)</option>
+                    </select>
+                </div>
                 <button type="submit" class="btn primary">
-                    <i class="ri-filter-line"></i> Filter
+                    <i class="ri-filter-line"></i> Apply
                 </button>
                 <a href="{% url 'admin_manufacturer' %}" class="btn secondary">
                     <i class="ri-refresh-line"></i> Reset
@@ -75,68 +101,116 @@
 
     <div class="manufacturers-table">
         <table>
-    <thead>
-        <tr>
-            <th>Company Name</th>
-            <th>License Number</th>
-            <th>Status</th>
-            <th>Registration Date</th>
-            <th>Products</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for manufacturer in page_obj %}
-        <tr>
-            <td>
-                <div class="company-info">
-                    <div class="company-name">{{ manufacturer.company_name }}</div>
-                    <div class="company-contact">{{ manufacturer.phone_number }}</div>
-                </div>
-            </td>
-            <td>{{ manufacturer.Business_licence }}</td>
-            <td>
-                <span class="status-badge {% if manufacturer.is_approved %}approved{% else %}pending{% endif %}">
-                    {% if manufacturer.is_approved %}Approved{% else %}Pending{% endif %}
-                </span>
-            </td>
-            <td>{{ manufacturer.created_at|date:"M d, Y" }}</td>
-            <td>{{ manufacturer.products.count }}</td>
-            <td>
-                <div class="action-buttons">
-                    <!-- Action buttons here -->
-                </div>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" class="no-data">No manufacturers found</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Contact</th>
+                    <th>License</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Products</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for manufacturer in manufacturers %}
+                <tr>
+                    <td>
+                        <div class="company-info">
+                            <div class="company-name">{{ manufacturer.company_name }}</div>
+                            <div class="company-email">{{ manufacturer.user.email }}</div>
+                        </div>
+                    </td>
+                    <td>{{ manufacturer.phone_number }}</td>
+                    <td>{{ manufacturer.Business_licence }}</td>
+                    <td>
+                        <span class="status-badge {% if manufacturer.is_approved %}approved{% else %}pending{% endif %}">
+                            {% if manufacturer.is_approved %}
+                                <i class="ri-checkbox-circle-line"></i> Approved
+                            {% else %}
+                                <i class="ri-time-line"></i> Pending
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>{{ manufacturer.created_at|date:"M d, Y" }}</td>
+                    <td>{{ manufacturer.products.count }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="" class="btn view" title="View details">
+                                <i class="ri-eye-line"></i>
+                            </a>
+                            {% if not manufacturer.is_approved %}
+                            <form method="post" action="{% url 'approve_manufacturer' manufacturer.id %}" class="inline-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn approve" title="Approve manufacturer">
+                                    <i class="ri-check-line"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'reject_manufacturer' manufacturer.id %}" class="inline-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn reject" title="Reject manufacturer"
+                                        onclick="return confirm('Are you sure you want to reject {{ manufacturer.company_name }}?')">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="no-data">
+                        <i class="ri-search-line"></i>
+                        <p>No manufacturers found matching your criteria</p>
+                        <a href="{% url 'admin_manufacturer' %}" class="btn primary">Reset filters</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        {% if page_obj.paginator.num_pages > 1 %}
+        {% if manufacturers.has_other_pages %}
         <div class="pagination">
-            <span class="step-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&laquo; first</a>
-                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">previous</a>
+            <div class="pagination-info">
+                Showing {{ manufacturers.start_index }}-{{ manufacturers.end_index }} of {{ manufacturers.paginator.count }}
+            </div>
+            <div class="pagination-links">
+                {% if manufacturers.has_previous %}
+                    <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="first-page" title="First page">
+                        <i class="ri-skip-back-line"></i>
+                    </a>
+                    <a href="?page={{ manufacturers.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="prev-page" title="Previous page">
+                        <i class="ri-arrow-left-line"></i>
+                    </a>
                 {% endif %}
 
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
+                {% for num in manufacturers.paginator.page_range %}
+                    {% if manufacturers.number == num %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > manufacturers.number|add:'-3' and num < manufacturers.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                           class="page-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">last &raquo;</a>
+                {% if manufacturers.has_next %}
+                    <a href="?page={{ manufacturers.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="next-page" title="Next page">
+                        <i class="ri-arrow-right-line"></i>
+                    </a>
+                    <a href="?page={{ manufacturers.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="last-page" title="Last page">
+                        <i class="ri-skip-forward-line"></i>
+                    </a>
                 {% endif %}
-            </span>
+            </div>
         </div>
         {% endif %}
     </div>
 </main>
+
 
 <!-- Right Sidebar -->
 <div class="right">
@@ -145,8 +219,9 @@
             <i class="ri-menu-line"></i>
         </button>
         <div class="profile">
-            <div class="infor">
-                <p>hey <b>{{ request.user.username }}</b> <br>admin</p>
+            <div class="info">
+                <p>Hey <b>{{ request.user.username }}</b></p>
+                <small>Admin</small>
             </div>
         </div>
     </div>
@@ -162,10 +237,6 @@
                 </div>
                 <div class="report-actions">
                     <a href="" class="btn view">View Details</a>
-                    <form method="post" action="" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn resolve">Mark Resolved</button>
-                    </form>
                 </div>
             </div>
             {% empty %}
@@ -189,14 +260,423 @@
     </div>
 </div>
 
+
 </div>
 </div>
+    <style>
+/* Table Controls */
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.table-summary {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.summary-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.summary-badge.approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.summary-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.table-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Search and Filter */
+.search-filter {
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.filter-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-option label {
+    font-size: 0.9rem;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.filter-option select {
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* Table Styles */
+.manufacturers-table {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.manufacturers-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.manufacturers-table th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.manufacturers-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.company-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.company-name {
+    font-weight: 500;
+    color: #212529;
+}
+
+.company-email, .company-contact {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.date {
+    font-size: 0.9rem;
+}
+
+.time {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.product-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.products-link {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.products-link:hover {
+    color: #0d6efd;
+}
+
+.no-data {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.no-data i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+}
+
+.no-data p {
+    margin-bottom: 1.5rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.btn.view {
+    background: #e7f1ff;
+    color: #0d6efd;
+}
+
+.btn.view:hover {
+    background: #d0e2ff;
+}
+
+.btn.approve {
+    background: #d1e7dd;
+    color: #198754;
+}
+
+.btn.approve:hover {
+    background: #b8dfca;
+}
+
+.btn.reject {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.btn.reject:hover {
+    background: #f1b7bc;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination-links a,
+.pagination-links span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.pagination-links a {
+    background: #f8f9fa;
+    color: #495057;
+    text-decoration: none;
+}
+
+.pagination-links a:hover {
+    background: #e9ecef;
+}
+
+.current-page {
+    background: #0d6efd;
+    color: white;
+    font-weight: 500;
+}
+
+/* Right Sidebar */
+.right {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-left: 1px solid #e9ecef;
+}
+
+.reports-section {
+    margin-top: 2rem;
+}
+
+.reports-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.report-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.report-code {
+    font-family: monospace;
+    background: #f1f3f5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.report-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.report-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.report-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.report-actions .btn.view {
+    background: #e7f1ff;
+    color: #0d6efd;
+}
+
+.report-actions .btn.resolve {
+    background: #d1e7dd;
+    color: #198754;
+}
+
+.no-reports {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.no-reports i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #adb5bd;
+}
+
+.reports-summary {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.summary-card {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.summary-card h3 {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card .count {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+}
+</style>
+
 
 <script>
-// Confirm before deleting
-document.querySelectorAll('.delete').forEach(link => {
-    link.addEventListener('click', function(e) {
-        if(!confirm('Are you sure you want to delete this manufacturer?')) {
+// Confirm before rejecting
+document.querySelectorAll('.btn.reject').forEach(button => {
+    button.addEventListener('click', function(e) {
+        const companyName = this.closest('tr').querySelector('.company-name').textContent;
+        if(!confirm(`Are you sure you want to reject ${companyName}? This will permanently delete all associated data.`)) {
             e.preventDefault();
         }
     });

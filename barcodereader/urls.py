@@ -25,4 +25,7 @@ urlpatterns = [
     path('delete_company/<int:id>',views.delete_company),
     path('delete_products/<int:id>',views.delete_products),
     path('user_feedback_page/',views.user_feedback_page,name="user_feedback_page"),
+    path('admin/manufacturers/<int:manufacturer_id>/approve/', views.approve_manufacturer, name='approve_manufacturer'),
+    path('admin/manufacturers/<int:manufacturer_id>/reject/', views.reject_manufacturer, name='reject_manufacturer'),
+    path('admin/manufacturers/<int:manufacturer_id>/', views.manufacturer_detail, name='manufacturer_detail'),
 ]
